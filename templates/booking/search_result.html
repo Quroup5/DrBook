@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Result</title>
+</head>
+<body>
+Click on the name of the doctor to see the visit times:<br>
+{% for doctor in doctor_list %}
+    <p><a href="{% url 'visit_time' %}?id={{ doctor.id }}"> Name:{{ doctor.first_name }} {{ doctor.last_name }}</a>
+        - Speciality:{{ doctor.doctorinfo__speciality }}
+        - Visiting Price:{{ doctor.doctorinfo__price }}
+        - Address:{{ doctor.doctorinfo__address }} </p>
+{% endfor %}
+</body>
+</html>

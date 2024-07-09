@@ -13,3 +13,7 @@ class PatientInfo(models.Model):
                                    validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit national ID.')])
     address = models.CharField(max_length=255)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
+
+
+    def __str__(self):
+        return f"{self.patient.username} {self.patient.first_name} {self.patient.last_name}"

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Visit_times</title>
+</head>
+<body>
+Click on the time to select the visit times:<br>
+<p style="color: blue">
+    Doctor Name: {{ doctor.first_name }} {{ doctor.last_name }} -
+    Speciality: {{ doctor.doctorinfo.speciality }} </p>
+{% for time in time_list %}
+    <p><a href="{% url 'reserve_visit_time' %}?id={{ time.id }}">
+        - Date:{{ time.date }}
+        - Time:{{ time.time }} </a>
+        - Price:{{ doctor.doctorinfo.price }} </p>
+{% endfor %}
+</body>
+</html>

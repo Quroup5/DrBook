@@ -5,4 +5,10 @@ from booking.models import DoctorInfo
 from users.models import CustomUser, PatientInfo
 
 admin.site.register(CustomUser)
-admin.site.register(PatientInfo)
+#admin.site.register(PatientInfo)
+
+
+@admin.register(PatientInfo)
+class PatientInfoAdmin(admin.ModelAdmin):
+    list_display = (['__str__'])
+
