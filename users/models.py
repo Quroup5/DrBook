@@ -1,5 +1,11 @@
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.core.validators import RegexValidator
+
+
+# Create your models here.
+class User(AbstractUser):
+    pass
 
 
 class Patients(models.Model):
@@ -8,5 +14,3 @@ class Patients(models.Model):
                                    validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit national ID.')])
     address = models.CharField(max_length=255)
     balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-
-
