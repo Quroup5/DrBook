@@ -1,3 +1,4 @@
+
 """
 URL configuration for core project.
 
@@ -15,26 +16,13 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('settings/', include("settings.url"))
 ]
 
 
-from django.urls import path
-from .views import (
-    TransactionListView,
-    TransactionDetailView,
-    TransactionCreateView,
-    TransactionUpdateView,
-    TransactionDeleteView,
-)
 
-urlpatterns = [
-    path('transactions/', TransactionListView.as_view(), name='transaction_list'),
-    path('transactions/<int:pk>/', TransactionDetailView.as_view(), name='transaction_detail'),
-    path('transactions/new/', TransactionCreateView.as_view(), name='transaction_create'),
-    path('transactions/<int:pk>/edit/', TransactionUpdateView.as_view(), name='transaction_update'),
-    path('transactions/<int:pk>/delete/', TransactionDeleteView.as_view(), name='transaction_delete'),
-]
+
