@@ -1,9 +1,11 @@
 # Create your views here.
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render
 from django.urls import reverse_lazy
 
-from users.forms import SignUpForm
+from users.forms import SignUpForm, LoginForm
 from django.views.generic import CreateView
 
 
@@ -14,15 +16,29 @@ class SignUpView(CreateView):
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):
-        # This method is called when valid form data has been POSTed.
-        # It saves the form data to the database.
+
         user = form.save()  # This saves the user to the database
-        # Additional logic can go here if needed
+
         return super().form_valid(form)
 
 
-class UserLoginForm(AuthenticationForm):
-    pass
+
+class CustomLoginView(LoginView):
+    form_class = LoginForm
+    template_name = 'users/login.html'
+
+    def get_success_url(self):
+        return reverse_lazy('profile')
+
+@login_required
+def display_profile(request):
+    context = {
+        'user': request.user
+    }
+    return render(request, 'users/profile.html', context)
+
+
+
 
 
 def home_display_view(request):
