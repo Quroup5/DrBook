@@ -1,7 +1,5 @@
-from django.contrib.auth.views import LoginView
-from django.urls import path, include
+from django.urls import path
 
-from users.forms import LoginForm
 from users.views import SignUpView, home_display_view, CustomLoginView, display_profile, increase_balance, payment
 
 urlpatterns = [
@@ -11,6 +9,5 @@ urlpatterns = [
     path('profile/', display_profile, name='profile'),
     path('increase/balance/', increase_balance, name='increase_balance'),
     path('payment/', payment, name='payment'),
-
 
 ]
