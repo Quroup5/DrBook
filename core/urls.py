@@ -22,10 +22,7 @@ from users.views import home_display_view
 urlpatterns = [
     path('', home_display_view, name='home'),
     path('admin/', admin.site.urls),
-    # path("", include("users.urls")),
     path("booking/", include("booking.urls")),
-    # path('settings/', include("settings.urls")),
-
-    path('users', include('users.urls')),
+    path('users/', include('users.urls')),
     path('settings/', include("settings.urls"))
 ]

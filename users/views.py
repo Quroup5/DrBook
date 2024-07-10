@@ -14,7 +14,6 @@ from users.models import PatientInfo
 class SignUpView(CreateView):
     form_class = SignUpForm
     template_name = 'users/signup.html'
-    # success_url = reverse_lazy('login')
     success_url = reverse_lazy('login')
 
     def form_valid(self, form):

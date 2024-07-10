@@ -2,9 +2,8 @@ import datetime
 
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render
-from django.urls import reverse_lazy
 
 from booking.models import DoctorInfo, VisitTime
 from users.models import CustomUser, PatientInfo
@@ -17,7 +16,7 @@ def show_reservations(request):
         'msg': '',
         'times': time_list
     }
-    print(time_list.values())
+
     return render(request, template_name="booking/show_reservations.html", context=context)
 
 
@@ -57,7 +56,8 @@ def show_visit_times(request):
         today = datetime.date.today()
         # This query shows all the available visit time of after now
         time_list = VisitTime.objects.filter(Q(doctor__doctor__exact=doctor) & Q(patient_id=None) & Q(date__gte=today))
-        time_list = time_list.filter(Q(time__gt=datetime.datetime.now())).order_by('date', 'time')
+        time_list = time_list.filter(Q(date__gte=datetime.datetime.now())).order_by('date', 'time')
+
         context = {
             'doctor': doctor,
             'time_list': time_list
@@ -93,14 +93,17 @@ def reserve_visit_times(request):
         balance = float(info_object.balance)
         msg = ''
         if balance - price < 0:
-            template = 'booking/search.html'
-            return render(request, template_name=template)
+            msg = "Insufficient fund! Please increase your balance. "
+
         else:
             info_object.balance = str(balance - price)
             selected_visit_time.patient = info_object
             selected_visit_time.save()
             info_object.save()
+            msg = "Successfully reserved!"
 
-            return HttpResponseRedirect(reverse_lazy('show_reservations'))
+        context = {'msg': msg}
+        return render(request,
+                      template_name="booking/reservation_result_msg.html", context=context)
 
     return HttpResponse(content="Bad Request", status=400)

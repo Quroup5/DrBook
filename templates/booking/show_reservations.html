@@ -6,17 +6,23 @@
 </head>
 <body>
 <p>
-Your reserved visit times are:
+    Your reserved visit times are:
 </p>
 {% for time in times %}
-<pr>
-    ------------------------------------------------<br>
-    Doctor Name:{{ time.doctor.doctor.first_name }} {{ time.doctor.doctor.last_name }}<br>
-    Date: {{ time.date }} - Time: {{ selected_time.time }}<br>
-    Speciality: {{ time.doctor.speciality }}<br>
-    Address: {{ time.doctor.address }}<br>
-    ------------------------------------------------------
-</pr>
+    <pr>
+        ------------------------------------------------<br>
+        Doctor Name:{{ time.doctor.doctor.first_name }} {{ time.doctor.doctor.last_name }}<br>
+        Date: {{ time.date }} - Time: {{ selected_time.time }}<br>
+        Speciality: {{ time.doctor.speciality }}<br>
+        Address: {{ time.doctor.address }}<br>
+        ------------------------------------------------<br>
+    </pr>
 {% endfor %}
 </body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
 </html>
