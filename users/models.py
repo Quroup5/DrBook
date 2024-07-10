@@ -5,6 +5,9 @@ from django.contrib.auth.models import AbstractUser
 
 class CustomUser(AbstractUser):
     is_admin = models.BooleanField(null=True)
+    national_id = models.CharField(max_length=10,
+                                   validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit national ID.')],
+                                   null=True)
 
 
 class PatientInfo(models.Model):
