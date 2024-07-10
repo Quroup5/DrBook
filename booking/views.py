@@ -30,6 +30,7 @@ def display_search_page(request):
 
 
 def search_by_name(request):
+    # TODO add feature of doctor search by name
     pass
 
 

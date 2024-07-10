@@ -15,6 +15,7 @@ Are you sure that you want to reserve this visit time:<br>
 You should pay {{ selected_time.doctor.price }} Toman from your account balance
 <p>
 <form method="post" action="{% url 'reserve_visit_time' %}?id={{ selected_time.id }}" style="text-align: center">
+   {% csrf_token %}
     <input type="submit" value="Pay & Reserve">
 </form>
 </p>
