@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Check Visit Time</title>
+</head>
+<body>
+    Are you sure that you want to reserve this visit time:<br>
+    <p>
+        Doctor Name:{{ selected_time.doctor.doctor.first_name }} {{ selected_time.doctor.doctor.last_name }}<br>
+        Date: {{ selected_time.date }} - Time: {{ selected_time.time }}<br>
+        Speciality:{{ selected_time.doctor.speciality }}<br>
+        Visiting Price:{{ selected_time.doctor.price }}<br>
+    </p>
+    You should pay  {{ selected_time.doctor.price }} Toman from your account balance
+    <p>
+    <form method="post" action="{% url 'reserve_visit_time' %}?id={{ selected_time.id }}">
+        <input type="submit" value="Pay & Reserve">
+    </form>
+    <form method="get" action="{% url 'search_page' %}">
+        <input type="submit" value="Cancel">
+    </form>
+
+    </p>
+</body>
+</html>

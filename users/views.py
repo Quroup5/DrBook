@@ -37,6 +37,7 @@ def display_profile(request):
     info = PatientInfo.objects.filter(patient=request.user).first()
 
     context = {
+        'msg': '',
         'user': request.user,
         'info': info
     }

@@ -10,7 +10,7 @@ Click on the time to select the visit times:<br>
     Doctor Name: {{ doctor.first_name }} {{ doctor.last_name }} -
     Speciality: {{ doctor.doctorinfo.speciality }} </p>
 {% for time in time_list %}
-    <p><a href="{% url 'reserve_visit_time' %}?id={{ time.id }}">
+    <p><a href="{% url 'check_visit_time' %}?id={{ time.id }}" methods>
         - Date:{{ time.date }}
         - Time:{{ time.time }} </a>
         - Price:{{ doctor.doctorinfo.price }} </p>

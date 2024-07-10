@@ -1,17 +1,30 @@
 import datetime
 
+from django.contrib.auth.decorators import login_required
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render
 from django.urls import reverse_lazy
 
 from booking.models import DoctorInfo, VisitTime
-from users.models import CustomUser
+from users.models import CustomUser, PatientInfo
+
+
+@login_required
+def show_reservations(request):
+    time_list = VisitTime.objects.filter(patient_id=request.user.id)
+    context = {
+        'msg': '',
+        'times': time_list
+    }
+    print(time_list.values())
+    return render(request, template_name="booking/show_reservations.html", context=context)
 
 
 def display_search_page(request):
     specs = [spec[0] for spec in DoctorInfo.SPECIALITY_CHOICES]
     context = {
+        'msg': '',
         'specs': specs
     }
     return render(request, template_name="booking/search.html", context=context)
@@ -54,5 +67,40 @@ def show_visit_times(request):
     return HttpResponse(content="Bad Request", status=400)
 
 
+@login_required
+def check_visit_times(request):
+    if request.method == "GET":
+        time_id = request.GET.get("id")
+        selected_visit_time = VisitTime.objects.get(id=time_id)
+        context = {
+            'selected_time': selected_visit_time
+        }
+        return render(request, template_name='booking/check_visit_time.html', context=context)
+
+    return HttpResponse(content="Bad Request", status=400)
+
+
+@login_required
 def reserve_visit_times(request):
-    pass
+    if request.method == "POST":
+
+        time_id = request.GET.get("id")
+
+        selected_visit_time = VisitTime.objects.get(id=time_id)
+        price = selected_visit_time.doctor.price
+        info_object = PatientInfo.objects.filter(patient=request.user).first()
+
+        balance = float(info_object.balance)
+        msg = ''
+        if balance - price < 0:
+            template = 'booking/search.html'
+            return render(request, template_name=template)
+        else:
+            info_object.balance = str(balance - price)
+            selected_visit_time.patient = info_object
+            selected_visit_time.save()
+            info_object.save()
+
+            return HttpResponseRedirect(reverse_lazy('show_reservations'))
+
+    return HttpResponse(content="Bad Request", status=400)

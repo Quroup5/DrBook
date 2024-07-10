@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show Reservations</title>
+</head>
+<body>
+<p>
+Your reserved visit times are:
+</p>
+{% for time in times %}
+<pr>
+    ------------------------------------------------<br>
+    Doctor Name:{{ time.doctor.doctor.first_name }} {{ time.doctor.doctor.last_name }}<br>
+    Date: {{ time.date }} - Time: {{ selected_time.time }}<br>
+    Speciality: {{ time.doctor.speciality }}<br>
+    Address: {{ time.doctor.address }}<br>
+    ------------------------------------------------------
+</pr>
+{% endfor %}
+</body>
+</html>
