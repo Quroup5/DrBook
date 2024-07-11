@@ -5,7 +5,8 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from booking.models import DoctorInfo, VisitTime
+from booking.forms import CommentForm
+from booking.models import DoctorInfo, VisitTime, Comment
 from users.models import CustomUser, PatientInfo
 
 
@@ -106,5 +107,57 @@ def reserve_visit_times(request):
         context = {'msg': msg}
         return render(request,
                       template_name="booking/reservation_result_msg.html", context=context)
+
+    return HttpResponse(content="Bad Request", status=400)
+
+
+@login_required
+def display_past_visit_times(request):
+    time_list = VisitTime.objects.filter(
+        Q(patient_id=request.user.id) & Q(date__lt=datetime.datetime.today())).order_by('date', 'time')
+    context = {
+        'msg': '',
+        'times': time_list
+    }
+
+    return render(request, template_name="booking/display_past_visit_times.html", context=context)
+
+
+@login_required
+def add_comment(request):
+    time_id = request.GET.get("time_id")
+    selected_visit_time = VisitTime.objects.get(id=time_id)
+
+    return render(request, template_name="booking/add_comment.html",
+                  context={'form': CommentForm(), 'visit_time': selected_visit_time})
+
+
+@login_required
+def save_comment(request):
+    if request.method == "POST":
+        form = CommentForm(request.POST)
+        time_id = request.GET.get("time_id")
+        selected_visit_time = VisitTime.objects.get(id=time_id)
+
+        # This line help us find if there was a comment already
+        old_comment = Comment.objects.filter(visit_time=selected_visit_time).first()
+
+        if form.is_valid():
+            text = form.cleaned_data['text']
+            score = form.cleaned_data['score']
+
+            if old_comment is None:
+                comment = Comment(visit_time=selected_visit_time, text=text, score=score)
+                comment.save()
+                msg = 'Thanks. Your comment added!'
+
+            else:
+                old_comment.text = text
+                old_comment.score = score
+                old_comment.save()
+                msg = 'Thanks. Your comment updated!'
+
+            return render(request, template_name='booking/after_operation_message.html',
+                          context={'msg': msg})
 
     return HttpResponse(content="Bad Request", status=400)
