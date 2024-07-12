@@ -161,3 +161,16 @@ def save_comment(request):
                           context={'msg': msg})
 
     return HttpResponse(content="Bad Request", status=400)
+
+
+@login_required
+def see_doctor_comments(request):
+    doctor_id = request.GET.get("id")
+    doctor = CustomUser.objects.get(id=doctor_id)
+    comments = Comment.objects.filter(visit_time__doctor__doctor_id=doctor_id)
+    context={
+        'doctor': doctor,
+        'comments': comments
+    }
+    print(comments.values())
+    return render(request, template_name= 'booking/see_comments.html', context=context)

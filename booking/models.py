@@ -6,7 +6,7 @@ from users.models import CustomUser, PatientInfo
 
 
 class DoctorInfo(models.Model):
-    # This is a field to model one to one relation with customusers of type doctor
+    # This is a field to model one-to-one relation with customusers of type doctor
     doctor = models.OneToOneField(
         CustomUser,
         on_delete=models.CASCADE,

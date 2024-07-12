@@ -1,7 +1,8 @@
 from django.urls import path
 
 from booking.views import display_search_page, search_by_name, search_by_speciality, show_visit_times, \
-    reserve_visit_times, check_visit_times, show_reservations, add_comment, display_past_visit_times, save_comment
+    reserve_visit_times, check_visit_times, show_reservations, add_comment, display_past_visit_times, save_comment, \
+    see_doctor_comments
 
 urlpatterns = [
     path('show/reservations/', show_reservations, name='show_reservations'),
@@ -14,4 +15,5 @@ urlpatterns = [
     path('visit/time/past/display', display_past_visit_times, name='display_past_visit_times'),
     path('visit/time/addcomment', add_comment, name='add_comment'),
     path('visit/time/savecomment', save_comment, name='save_comment'),
+    path('comments/display', see_doctor_comments, name='see_doctor_comments'),
 ]
