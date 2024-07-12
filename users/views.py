@@ -1,11 +1,14 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.urls import reverse_lazy, reverse
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.forms import UserCreationForm
 from django.views.generic import CreateView
 from .forms import UserRegisterForm, UserLoginForm
-
+from .otp import send_otp
+from datetime import datetime
+import pyotp
+from .models import User
 
 # Create your views here.
 class UserRegisterView(CreateView):
@@ -32,9 +35,11 @@ class UserLoginView(CreateView):
                 user = authenticate(username=username, password=password)
 
                 if user is not None:
-                    login(request, user)
-                    messages.success(request, f"you are logged in as {username}")
-                    return redirect('home')
+                    send_otp(request)
+                    request.session['username'] = username
+                    # login(request, user)
+                    # messages.success(request, f"you are logged in as {username}")
+                    return redirect('otp')
                 else:
                     messages.error(requset, "Error")
             else:
@@ -45,3 +50,29 @@ class UserLoginView(CreateView):
 
 def home(requset):
     return render(requset, 'home.html')
+
+
+def otp(request):
+    if request.method == 'POST':
+        otp = request.POST['otp']
+        username = request.session['username']
+
+        otp_secret_key = request.session['otp_secret_key']
+        otp_valid_date = request.session['otp_valid_date']
+
+        if otp_secret_key and otp_valid_date is not None:
+            valid_date = datetime.fromisoformat(otp_valid_date)
+
+            if valid_date > datetime.now():
+                totp = pyotp.TOTP(otp_secret_key, interval=60)
+                if totp.verify(otp):
+                    user = get_object_or_404(User, username=username)
+                    login(request, user)
+                    
+                    del request.session['otp_secret_key']
+                    del request.session['otp_valid_date']
+                    
+                    messages.success(request, f"you are logged in as {username}")
+                    return redirect('home')
+
+    return render(request, 'otp.html')
