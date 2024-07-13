@@ -2,13 +2,13 @@ from datetime import time
 
 from django.db import models
 
-from users.models import CustomUser, PatientInfo
+from users.models import User, Patients
 
 
 class DoctorInfo(models.Model):
-    # This is a field to model one to one relation with customusers of type doctor
+    # This is a field to model one to one relation with Users of type doctor
     doctor = models.OneToOneField(
-        CustomUser,
+        User,
         on_delete=models.CASCADE,
         primary_key=True
     )
@@ -35,7 +35,7 @@ class DoctorInfo(models.Model):
 
 class VisitTime(models.Model):
     doctor = models.ForeignKey(DoctorInfo, on_delete=models.CASCADE, null=False)
-    patient = models.ForeignKey(PatientInfo, on_delete=models.CASCADE, null=True, blank=True)
+    patient = models.ForeignKey(Patients, on_delete=models.CASCADE, null=True, blank=True)
     date = models.DateField(null=False)
     TIME_CHOICES = [
         (time(hour=15, minute=0), '3:00 PM'),

@@ -1,19 +1,16 @@
-from django.core.validators import RegexValidator
-from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db import models
+from django.core.validators import RegexValidator
 
 
-class CustomUser(AbstractUser):
-    is_admin = models.BooleanField(null=True)
+# Create your models here.
+class User(AbstractUser):
+    national_id = models.CharField(max_length=10,
+                                   validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit national ID.')],
+                                   null=True)
 
 
-class PatientInfo(models.Model):
-    patient = models.OneToOneField(CustomUser, on_delete=models.PROTECT, primary_key=True)
-    national_id = models.CharField(max_length=10, unique=True, null=True,
-                                   validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit national ID.')])
+class Patients(models.Model):
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
     address = models.CharField(max_length=255)
-    balance = models.DecimalField(max_digits=14, decimal_places=2, default=0)
-
-
-    def __str__(self):
-        return f"{self.patient.username} {self.patient.first_name} {self.patient.last_name}"
+    balance = models.PositiveIntegerField(default=0)

@@ -1,3 +1,4 @@
+
 """
 URL configuration for core project.
 
@@ -19,7 +20,7 @@ from django.urls import path, include
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("users.urls")),
+    path('user/', include('users.urls')),
+    path('settings/', include("settings.urls")),
     path("", include("booking.urls"))
-
 ]
