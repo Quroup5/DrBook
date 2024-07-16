@@ -124,7 +124,8 @@ def payment(request):
         initial = float(info_object.balance)
         info_object.balance = initial + amount
         info_object.save()
-        url = reverse_lazy('profile')
-        return HttpResponseRedirect(url)
+        msg = f'Thanks. You paid {amount}, and your balance is now: {initial + amount}.'
+        return render(request, template_name='booking/after_operation_message.html',
+                      context={'msg': msg})
 
     return HttpResponse(content="Bad Request", status=400)
