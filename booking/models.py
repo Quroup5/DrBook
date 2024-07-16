@@ -58,3 +58,25 @@ class VisitTime(models.Model):
 
     def __str__(self):
         return f"Dr. {self.doctor.doctor.first_name} {self.doctor.doctor.last_name}"
+
+
+
+class Comment(models.Model):
+    visit_time = models.OneToOneField(VisitTime, on_delete=models.CASCADE, null=False)
+    text = models.TextField(max_length=500, null=False)
+    SCORES = (
+        (0, 0),
+        (0.5, 0.5),
+        (1, 1),
+        (1.5, 1.5),
+        (2, 2),
+        (2.5, 2.5),
+        (3, 3),
+        (3.5, 3.5),
+        (4, 4),
+        (4.5, 4.5),
+        (5, 5),
+    )
+    score = models.FloatField(choices=SCORES)
+
+

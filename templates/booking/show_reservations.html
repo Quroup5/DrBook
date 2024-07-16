@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show Reservations</title>
+</head>
+<body>
+<p>
+    Your reserved visit times are:
+</p>
+{% for time in times %}
+    <pr>
+        ------------------------------------------------<br>
+        Doctor Name:{{ time.doctor.doctor.first_name }} {{ time.doctor.doctor.last_name }}<br>
+        Date: {{ time.date }} - Time: {{ time.time }}<br>
+        Speciality: {{ time.doctor.speciality }}<br>
+        Address: {{ time.doctor.address }}<br>
+        ------------------------------------------------<br>
+    </pr>
+{% endfor %}
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/user/login/">Log out</a> &nbsp;
+        <a href="/user/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>

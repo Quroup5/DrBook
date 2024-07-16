@@ -8,10 +8,14 @@
     <title>Document</title>
 </head>
 <body>
-
-{% if error_message %}
-    <p>{{ error_message}}</p>
-{% endif %}
+Please enter the OTP sent to you:
+{% if messages %}
+        <ul>
+            {% for message in messages %}
+                <li >{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
 
 <form method="POST">
     {% csrf_token %}
@@ -23,6 +27,11 @@
         <input type="submit" value="confirm">
     </div>
 </form>
+<footer>
+    <p style="text-align: center">
+        <a href="{% url 'home' %}">Home</a> &nbsp;
+    </p>
+</footer>
 </body>
 </html>
 

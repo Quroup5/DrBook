@@ -18,13 +18,20 @@ from users.models import Patients
 # Create your views here.
 class UserRegisterView(CreateView):
     form_class = UserRegisterForm
-    template_name = 'register.html'
+    template_name = 'users/register.html'
+
     success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        user = form.save()  # This saves the user to the database
+        info = Patients(user=user, balance=0.0)  # This line create a corresponding info object for that patient
+        info.save()
+        return super().form_valid(form)
 
 
 class UserLoginView(CreateView):
     form_class = UserLoginForm
-    template_name = 'login.html'
+    template_name = 'users/login.html'
 
     def get(self, request):
         form = self.form_class
@@ -38,7 +45,7 @@ class UserLoginView(CreateView):
                 password = form.cleaned_data.get('password')
 
                 user = authenticate(username=username, password=password)
-
+                print(user)
                 if user is not None:
                     send_otp(request)
                     request.session['username'] = username
@@ -46,46 +53,51 @@ class UserLoginView(CreateView):
                     # messages.success(request, f"you are logged in as {username}")
                     return redirect('otp')
                 else:
-                    messages.error(requset, "Error")
+                    messages.error(request, "Error")
             else:
                 messages.error(request, "Username or password incorrect")
         form = UserLoginForm()
-        return render(request, 'login.html', {"form": form})
+        return render(request, 'users\login.html', {"form": form})
 
 
-def home(requset):
-    return render(requset, 'home.html')
+def home(request):
+    return render(request, 'users\home.html')
 
 
 def otp(request):
     if request.method == 'POST':
-        otp = request.POST['otp']
-        username = request.session['username']
+        otp = request.POST.get('otp')
+        username = request.session.get('username')
 
-        otp_secret_key = request.session['otp_secret_key']
-        otp_valid_date = request.session['otp_valid_date']
+        otp_secret_key = request.session.get('otp_secret_key')
+        otp_valid_date = request.session.get('otp_valid_date')
 
         if otp_secret_key and otp_valid_date is not None:
             valid_date = datetime.fromisoformat(otp_valid_date)
 
             if valid_date > datetime.now():
                 totp = pyotp.TOTP(otp_secret_key, interval=60)
+                print(otp, totp.verify(otp))
                 if totp.verify(otp):
                     user = get_object_or_404(User, username=username)
                     login(request, user)
 
-                    del request.session['otp_secret_key']
-                    del request.session['otp_valid_date']
+                    if 'otp_secret_key' in request.session:
+                        del request.session['otp_secret_key']
+                    if 'otp_valid_date' in request.session:
+                        del request.session['otp_valid_date']
 
                     messages.success(request, f"you are logged in as {username}")
-                    return redirect('home')
+                    return redirect('profile')
+                else:
+                    messages.error(request, f"Wrong OTP")
 
-    return render(request, 'otp.html')
+    return render(request, 'users/otp.html')
 
 
 @login_required
 def display_profile(request):
-    info = Patients.objects.filter(patient=request.user).first()
+    info = Patients.objects.filter(user=request.user).first()
 
     context = {
         'user': request.user,
@@ -108,9 +120,9 @@ def payment(request):
     if request.method == "POST":
         amount = float(request.POST.get("amount"))
         current_user = request.user
-        info_object = Patients.objects.filter(patient=current_user).first()
+        info_object = Patients.objects.filter(user=current_user).first()
         initial = float(info_object.balance)
-        info_object.balance = str(initial + amount)
+        info_object.balance = initial + amount
         info_object.save()
         url = reverse_lazy('profile')
         return HttpResponseRedirect(url)

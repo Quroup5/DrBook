@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<div style="text-align: center">
+    <p> Please write your comment and give a score to your doctor:</p>
+    <form action="{% url 'save_comment'%}?time_id={{ visit_time.id }}" method="post">
+        {% csrf_token %}
+
+        {{ form.as_p }}
+        <input type="submit">
+    </form>
+</div>
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/user/login/">Log out</a> &nbsp;
+        <a href="/user/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>
