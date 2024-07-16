@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Profile</title>
+</head>
+<header style="text-align: center"> Welcome {{ user.username }} </header>
+{% if messages %}
+        <p style="text-align: center">
+            {% for message in messages %}
+                <p  style="text-align: center">{{ message }}</p>
+            {% endfor %}
+        </p>
+    {% endif %}
+<body>
+
+<p style="text-align: center"> Your balance is {{ info.balance }} Toman </p>
+<p style="text-align: center"><a href="/booking/search/">Search for a doctor</a></p>
+<p style="text-align: center"><a href="/user/increase/balance/">Increase your balance</a></p>
+<p style="text-align: center"><a href="/booking/show/reservations/?msg=''">See your reserved visit time</a></p>
+<p style="text-align: center"><a href="/booking/visit/time/past/display">Add a comment to your past visits </a></p>
+<p style="text-align: center"><a href="/user/login/">Log out</a></p>
+</body>
+</html>
+</html>

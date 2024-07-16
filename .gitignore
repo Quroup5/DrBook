@@ -163,3 +163,7 @@ cython_debug/
 *.sqlite
 
 data
+db.sqllite3
+core.setting
+
+.gitignore
