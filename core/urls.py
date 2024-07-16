@@ -1,4 +1,3 @@
-
 """
 URL configuration for core project.
 
@@ -18,9 +17,12 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+from users.views import home_display_view
+
 urlpatterns = [
+    path('', home_display_view, name='home'),
     path('admin/', admin.site.urls),
-    path('user/', include('users.urls')),
-    path('settings/', include("settings.urls")),
-    path("", include("booking.urls"))
+    path("booking/", include("booking.urls")),
+    path('users/', include('users.urls')),
+    path('settings/', include("settings.urls"))
 ]

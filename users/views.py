@@ -1,30 +1,36 @@
-from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib import messages
-from django.urls import reverse_lazy
-from django.contrib.auth import authenticate, login
-from django.views.generic import CreateView
-from .forms import UserRegisterForm, UserLoginForm
-from .otp import send_otp
-from datetime import datetime
-import pyotp
-from .models import User
-
-from django.contrib.auth.decorators import login_required
-from django.http import HttpResponse, HttpResponseRedirect
-
-from users.models import Patients
-
-
 # Create your views here.
-class UserRegisterView(CreateView):
-    form_class = UserRegisterForm
-    template_name = 'register.html'
+from django.contrib import messages
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.views import LoginView
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse_lazy
+from django.http import HttpResponse
+from datetime import datetime
+from users.forms import SignUpForm, UserLoginForm
+from django.views.generic import CreateView
+
+from users.models import Patients, User
+from users.otp import send_otp
+
+import pyotp
+
+
+class SignUpView(CreateView):
+    form_class = SignUpForm
+    template_name = 'users/signup.html'
     success_url = reverse_lazy('login')
+
+    def form_valid(self, form):
+        user = form.save()  # This saves the user to the database
+        info = Patients(patient=user, balance=0.0)  # This line create a corresponding info object for that patient
+        info.save()
+        return super().form_valid(form)
 
 
 class UserLoginView(CreateView):
     form_class = UserLoginForm
-    template_name = 'login.html'
+    template_name = 'users/login.html'
 
     def get(self, request):
         form = self.form_class
@@ -46,11 +52,11 @@ class UserLoginView(CreateView):
                     # messages.success(request, f"you are logged in as {username}")
                     return redirect('otp')
                 else:
-                    messages.error(requset, "Error")
+                    messages.error(request, "Error")
             else:
                 messages.error(request, "Username or password incorrect")
         form = UserLoginForm()
-        return render(request, 'login.html', {"form": form})
+        return render(request, 'users/login.html', {"form": form})
 
 
 def home(requset):
@@ -88,6 +94,7 @@ def display_profile(request):
     info = Patients.objects.filter(patient=request.user).first()
 
     context = {
+        'msg': '',
         'user': request.user,
         'info': info
     }
@@ -112,7 +119,8 @@ def payment(request):
         initial = float(info_object.balance)
         info_object.balance = str(initial + amount)
         info_object.save()
-        url = reverse_lazy('profile')
-        return HttpResponseRedirect(url)
+        msg = f'Thanks. You paid {amount}, and your balance is now: {initial + amount}.'
+        return render(request, template_name='booking/after_operation_message.html',
+                      context={'msg': msg})
 
     return HttpResponse(content="Bad Request", status=400)

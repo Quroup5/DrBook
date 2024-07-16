@@ -5,11 +5,19 @@
     <title>increase_blance</title>
 </head>
 <body>
-<form style="text-align: center" method="post" action="/payment/">
-    <p><label for="f1"> Please Enter the Amount :</label><br> </p>
-   <p> <input type="number" id="f1" name="amount" value="0.0" step="1000", min="10000">
-    <label for="f1">Toman</label></p>
-   <p> <input type="submit" value="Go To Payment Gateway"></p>
+
+<form style="text-align: center" method="post" action="/users/payment/">
+    {% csrf_token %}
+    <p><label for="f1"> Please Enter the Amount :</label><br></p>
+    <p><input type="number" id="f1" name="amount" value="0.0" step="1000" , min="10000">
+        <label for="f1">Toman</label></p>
+    <p><input type="submit" value="Go To Payment Gateway"></p>
 </form>
 </body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
 </html>

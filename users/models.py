@@ -1,6 +1,6 @@
-from django.contrib.auth.models import AbstractUser
-from django.db import models
 from django.core.validators import RegexValidator
+from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 
 # Create your models here.
@@ -14,3 +14,6 @@ class Patients(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT)
     address = models.CharField(max_length=255)
     balance = models.PositiveIntegerField(default=0)
+
+    def __str__(self):
+        return f"{self.user.username} {self.user.first_name} {self.user.last_name}"

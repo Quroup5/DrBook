@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>See Comments</title>
+</head>
+<body>
+Comments of users on their experience with Dr.{{ doctor.first_name }} {{ doctor.last_name }}:<br>
+
+{% for comment in comments %}
+    <p>
+        ---------------------------------------<br>
+        - Comment by {{ comment.visit_time.patient }}: {{ comment.text }} <br>
+        - Score: {{ comment.score }}/5 <br>
+        - Experience date: {{ comment.visit_time.date }} -{{ comment.visit_time.time }} <br>
+        ---------------------------------------
+    </p>
+{% endfor %}
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>

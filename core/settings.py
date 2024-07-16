@@ -10,7 +10,6 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
-import os.path
 from pathlib import Path
 import environ
 
@@ -42,7 +41,8 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "users",
-    "settings"
+    "settings",
+    "booking",
 ]
 
 MIDDLEWARE = [
@@ -88,7 +88,6 @@ DATABASES = {
         'PORT': env.str("PG_PORT"),
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
