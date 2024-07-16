@@ -1,6 +1,6 @@
 from django.urls import path
 
-from booking.views import display_search_page, search_by_name, search_by_speciality, show_visit_times, \
+from booking.views import home, display_search_page, search_by_name, search_by_speciality, show_visit_times, \
     reserve_visit_times, check_visit_times, show_reservations, display_past_visit_times
 
 urlpatterns = [

@@ -3,9 +3,13 @@ from django.db.models import Q
 from django.http import HttpResponse
 from django.shortcuts import render
 
-from users.models import User, Doctor, VisitTime, Patients
+from users.models import User, Doctor, VisitTime, Patient
 
 import datetime
+
+
+def home(request):
+    return render(request, template_name="home.html")
 
 
 def display_search_page(request):
@@ -88,7 +92,7 @@ def reserve_visit_times(request):
 
         selected_visit_time = VisitTime.objects.get(id=time_id)
         price = selected_visit_time.doctor.price
-        info_object = Patients.objects.filter(patient=request.user).first()
+        info_object = Patient.objects.filter(patient=request.user).first()
 
         balance = float(info_object.balance)
         msg = ''

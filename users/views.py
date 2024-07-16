@@ -1,16 +1,17 @@
-# Create your views here.
 from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.views import LoginView
 from django.shortcuts import render, get_object_or_404, redirect
 from django.urls import reverse_lazy
 from django.http import HttpResponse
 from datetime import datetime
-from users.forms import SignUpForm, UserLoginForm
+
 from django.views.generic import CreateView
 
-from users.models import Patients, User
+from users.forms import SignUpForm, UserLoginForm
+from django.contrib.auth.views import LoginView
+
+from users.models import Patient, User
 from users.otp import send_otp
 
 import pyotp
@@ -23,44 +24,14 @@ class SignUpView(CreateView):
 
     def form_valid(self, form):
         user = form.save()  # This saves the user to the database
-        info = Patients(patient=user, balance=0.0)  # This line create a corresponding info object for that patient
+        info = Patient(patient=user, balance=0.0)  # This line create a corresponding info object for that patient
         info.save()
         return super().form_valid(form)
 
 
-class UserLoginView(CreateView):
-    form_class = UserLoginForm
+class UserLoginView(LoginView):
+    # TODO: add Google login
     template_name = 'users/login.html'
-
-    def get(self, request):
-        form = self.form_class
-        return render(request, self.template_name, {'form': form})
-
-    def post(self, request):
-        if request.method == 'POST':
-            form = UserLoginForm(request, data=request.POST)
-            if form.is_valid():
-                username = form.cleaned_data.get('username')
-                password = form.cleaned_data.get('password')
-
-                user = authenticate(username=username, password=password)
-
-                if user is not None:
-                    send_otp(request)
-                    request.session['username'] = username
-                    # login(request, user)
-                    # messages.success(request, f"you are logged in as {username}")
-                    return redirect('otp')
-                else:
-                    messages.error(request, "Error")
-            else:
-                messages.error(request, "Username or password incorrect")
-        form = UserLoginForm()
-        return render(request, 'users/login.html', {"form": form})
-
-
-def home(requset):
-    return render(requset, 'home.html')
 
 
 def otp(request):
@@ -91,7 +62,7 @@ def otp(request):
 
 @login_required
 def display_profile(request):
-    info = Patients.objects.filter(patient=request.user).first()
+    info = Patient.objects.filter(patient=request.user).first()
 
     context = {
         'msg': '',
@@ -99,10 +70,6 @@ def display_profile(request):
         'info': info
     }
     return render(request, 'users/profile.html', context)
-
-
-def home_display_view(request):
-    return render(request, template_name="users/home.html")
 
 
 @login_required
@@ -115,7 +82,7 @@ def payment(request):
     if request.method == "POST":
         amount = float(request.POST.get("amount"))
         current_user = request.user
-        info_object = Patients.objects.filter(patient=current_user).first()
+        info_object = Patient.objects.filter(patient=current_user).first()
         initial = float(info_object.balance)
         info_object.balance = str(initial + amount)
         info_object.save()
@@ -124,6 +91,7 @@ def payment(request):
                       context={'msg': msg})
 
     return HttpResponse(content="Bad Request", status=400)
+
 
 @login_required
 def add_comment(request):

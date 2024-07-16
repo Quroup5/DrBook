@@ -2,31 +2,36 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
-from datetime import time
+from datetime import time, timedelta, datetime
 
 
 class User(AbstractUser):
-    national_id = models.CharField(max_length=10,
-                                   validators=[RegexValidator(r'^\d{10}$', 'Enter a valid 10-digit national ID.')],
-                                   null=True)
+    is_admin = models.BooleanField(default=False)
+    is_doctor = models.BooleanField(default=False)
+    is_patient = models.BooleanField(default=False)
+    national_id = models.CharField(
+        max_length=10,
+        validators=[
+            RegexValidator(
+                r'^\d{10}$',
+                'Enter a valid 10-digit national ID.'
+            )
+        ],
+        null=True
+    )
 
 
-class Patients(models.Model):
-    user = models.OneToOneField(User, on_delete=models.PROTECT)
-    address = models.CharField(max_length=255)
-    balance = models.PositiveIntegerField(default=0)
+class Patient(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    address = models.CharField(max_length=255, verbose_name="Address")
+    balance = models.PositiveIntegerField(default=0, verbose_name="Balance")
 
     def __str__(self):
-        return f"{self.user.username} {self.user.first_name} {self.user.last_name}"
+        return self.user.username
 
 
 class Doctor(models.Model):
-    # This is a field to model one-to-one relation with Users of type doctor
-    doctor = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE,
-        primary_key=True
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     SPECIALITY_CHOICES = (
         ("General", "General"),
@@ -40,39 +45,50 @@ class Doctor(models.Model):
         ("Pediatrics", "Pediatrics"),
         ("Psychiatry", "Psychiatry"),
     )
-    speciality = models.CharField(max_length=200, choices=SPECIALITY_CHOICES)
-    address = models.CharField(max_length=200, null=False)
-    price = models.FloatField(null=False)
+    speciality = models.CharField(
+        max_length=50,
+        choices=SPECIALITY_CHOICES,
+        verbose_name="Speciality"
+    )
+    address = models.CharField(
+        max_length=255,
+        null=False,
+        verbose_name="Address"
+    )
+    price = models.FloatField(
+        null=False,
+        verbose_name="Consultation Fee"
+    )
 
     def __str__(self):
-        return f"Dr. {self.doctor.first_name} {self.doctor.last_name}"
+        return self.user.username
 
 
 class VisitTime(models.Model):
-    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, null=False)
-    patient = models.ForeignKey(Patients, on_delete=models.CASCADE, null=True, blank=True)
-    date = models.DateField(null=False)
-    TIME_CHOICES = [
-        (time(hour=15, minute=0), '3:00 PM'),
-        (time(hour=15, minute=30), '3:30 PM'),
-        (time(hour=16, minute=0), '4:00 PM'),
-        (time(hour=16, minute=30), '4:30 PM'),
-        (time(hour=17, minute=0), '5:00 PM'),
-        (time(hour=17, minute=30), '5:30 PM'),
-        (time(hour=18, minute=0), '6:00 PM'),
-        (time(hour=18, minute=30), '6:30 PM'),
-        (time(hour=19, minute=0), '7:00 PM'),
-        (time(hour=19, minute=30), '7:30 PM'),
-        (time(hour=20, minute=0), '8:00 PM'),
-        (time(hour=20, minute=30), '8:30 PM'),
-    ]
-    time = models.TimeField(choices=TIME_CHOICES)
+    doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, verbose_name="Doctor")
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, verbose_name="Patient")
+    date = models.DateField(null=False, verbose_name="Date")
+
+    @staticmethod
+    def generate_time_choices(start_time, end_time, interval_minutes):
+        times = []
+        current_time = start_time
+        while current_time < end_time:
+            times.append((current_time, current_time.strftime('%I:%M %p')))
+            current_time = (
+                    datetime.combine(datetime.today(), current_time) + timedelta(minutes=interval_minutes)).time()
+        return times
+
+    TIME_CHOICES = generate_time_choices(time(15, 0), time(21, 0), 30)
+    time = models.TimeField(choices=TIME_CHOICES, verbose_name="Time")
 
     class Meta:
         unique_together = ('doctor', 'date', 'time')
+        verbose_name = "Visit Time"
+        verbose_name_plural = "Visit Times"
 
     def __str__(self):
-        return f"Dr. {self.doctor.doctor.first_name} {self.doctor.doctor.last_name}"
+        return f"Dr. {self.doctor.user.get_full_name()}, Visit Time: {self.date} - {self.time.strftime('%I:%M %p')}"
 
 
 class Comment(models.Model):
@@ -92,3 +108,6 @@ class Comment(models.Model):
         (5, 5),
     )
     score = models.FloatField(choices=SCORES)
+
+    def __str__(self):
+        return f"Comment by {self.visit_time.patient.user.username} about {self.visit_time}"
