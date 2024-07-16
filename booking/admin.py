@@ -1,5 +1,5 @@
 from django.contrib import admin
-from booking.models import Doctor, VisitTime
+from users.models import Doctor, VisitTime
 
 
 @admin.register(Doctor)

@@ -1,14 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
-from booking.models import Doctor
-from users.models import CustomUser, PatientInfo
+from .models import User, Patients
 
-admin.site.register(CustomUser)
-#admin.site.register(PatientInfo)
+admin.site.register(User)
 
 
-@admin.register(PatientInfo)
+@admin.register(Patients)
 class PatientInfoAdmin(admin.ModelAdmin):
     list_display = (['__str__'])
-
