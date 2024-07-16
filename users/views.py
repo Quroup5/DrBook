@@ -45,7 +45,7 @@ class UserLoginView(CreateView):
                 password = form.cleaned_data.get('password')
 
                 user = authenticate(username=username, password=password)
-                print(user)
+
                 if user is not None:
                     send_otp(request)
                     request.session['username'] = username
@@ -77,7 +77,7 @@ def otp(request):
 
             if valid_date > datetime.now():
                 totp = pyotp.TOTP(otp_secret_key, interval=60)
-                print(otp, totp.verify(otp))
+
                 if totp.verify(otp):
                     user = get_object_or_404(User, username=username)
                     login(request, user)

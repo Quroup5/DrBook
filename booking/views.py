@@ -19,7 +19,45 @@ def display_search_page(request):
 
 
 def search_by_name(request):
-    pass
+    if request.method == "GET":
+
+        first_name = request.GET.get("first_name", '')
+        last_name = request.GET.get("last_name", '')
+
+        if len(first_name) == 0 and len(last_name) == 0:
+            doctor_list = User.objects.select_related('doctorinfo').filter(
+                Q(doctorinfo__doctor__first_name__startswith='')
+                |
+                Q(doctorinfo__doctor__last_name__istartswith='')).values(
+                'id', 'first_name', 'last_name', 'doctorinfo__speciality', 'doctorinfo__address', 'doctorinfo__price'
+            )
+
+        if len(first_name) == 0 and len(last_name) != 0:
+            doctor_list = User.objects.select_related('doctorinfo').filter(
+                Q(doctorinfo__doctor__last_name__istartswith=last_name)).values(
+                'id', 'first_name', 'last_name', 'doctorinfo__speciality', 'doctorinfo__address', 'doctorinfo__price'
+            )
+
+        if len(first_name) != 0 and len(last_name) == 0:
+            doctor_list = User.objects.select_related('doctorinfo').filter(
+                Q(doctorinfo__doctor__first_name__istartswith=first_name)).values(
+                'id', 'first_name', 'last_name', 'doctorinfo__speciality', 'doctorinfo__address', 'doctorinfo__price'
+            )
+
+        if len(first_name) != 0 and len(last_name) != 0:
+            doctor_list = User.objects.select_related('doctorinfo').filter(
+                Q(doctorinfo__doctor__first_name__startswith=first_name)
+                &
+                Q(doctorinfo__doctor__last_name__istartswith=last_name)).values(
+                'id', 'first_name', 'last_name', 'doctorinfo__speciality', 'doctorinfo__address', 'doctorinfo__price'
+            )
+
+        context = {
+            'doctor_list': doctor_list
+        }
+        return render(request, template_name='booking/search_result.html', context=context)
+
+    return HttpResponse(content="Bad Request", status=400)
 
 
 def search_by_speciality(request):
@@ -99,7 +137,6 @@ def check_visit_times(request):
 
 @login_required
 def show_reservations(request):
-
     time_list = VisitTime.objects.filter(patient__user_id=request.user.id)
     context = {
         'msg': '',
@@ -198,5 +235,5 @@ def see_doctor_comments(request):
         'doctor': doctor,
         'comments': comments
     }
-    print(comments.values())
+
     return render(request, template_name='booking/see_comments.html', context=context)
