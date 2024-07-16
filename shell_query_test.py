@@ -2,14 +2,14 @@
 
 from datetime import datetime
 
-from booking.models import DoctorInfo, VisitTime
+from booking.models import Doctor, VisitTime
 from users.models import CustomUser, PatientInfo
 from django.db.models import Q
 
 u1 = CustomUser.objects.filter(id=6).first()
 q1 = PatientInfo.objects.filter(patient=u1).first()
 q1.balance = 10
-spec = DoctorInfo.SPECIALITY_CHOICES[0][0]
+spec = Doctor.SPECIALITY_CHOICES[0][0]
 print(spec)
 s = CustomUser.objects.filter(doctorinfo__speciality__exact=spec)
 doctor_list = CustomUser.objects.select_related('doctorinfo'

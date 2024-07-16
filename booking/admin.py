@@ -1,11 +1,12 @@
 from django.contrib import admin
-from booking.models import DoctorInfo, VisitTime
+from booking.models import Doctor, VisitTime
 
 
-@admin.register(DoctorInfo)
+@admin.register(Doctor)
 class DoctorInfoAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'speciality', 'price', 'address')
     search_fields = (['date'])
+
 
 @admin.register(VisitTime)
 class VisitTimeAdmin(admin.ModelAdmin):
