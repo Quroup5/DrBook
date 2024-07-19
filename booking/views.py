@@ -9,6 +9,7 @@ import datetime
 
 
 def home(request):
+    # PageTree: 1
     return render(request, template_name="home.html")
 
 

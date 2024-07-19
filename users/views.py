@@ -2,13 +2,13 @@ from django.contrib import messages
 from django.contrib.auth import login, authenticate
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, get_object_or_404, redirect
-from django.urls import reverse_lazy
+from django.urls import reverse_lazy, reverse
 from django.http import HttpResponse
 from datetime import datetime
 
 from django.views.generic import CreateView
 
-from users.forms import SignUpForm, UserLoginForm
+from users.forms import SignUpForm, UserLoginForm, PatientForm, DoctorForm
 from django.contrib.auth.views import LoginView
 
 from users.models import Patient, User
@@ -17,26 +17,54 @@ from users.otp import send_otp
 import pyotp
 
 
+class UserLoginView(LoginView):
+    # TODO: add Google login
+    # PageTree: 2.1
+    template_name = 'users/login.html'
+    authentication_form = UserLoginForm
+    redirect_authenticated_user = True
+    success_url = reverse_lazy('profile')
+
+
 class SignUpView(CreateView):
+    # PageTree: 2.2
     form_class = SignUpForm
     template_name = 'users/signup.html'
     success_url = reverse_lazy('login')
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['patient_form'] = PatientForm(self.request.POST or None)
+        context['doctor_form'] = DoctorForm(self.request.POST or None)
+        return context
+
     def form_valid(self, form):
-        user = form.save()  # This saves the user to the database
-        info = Patient(patient=user, balance=0.0)  # This line create a corresponding info object for that patient
-        info.save()
-        return super().form_valid(form)
+        user = form.save(commit=False)
+        user_type = form.cleaned_data['user_type']
+        user.is_patient = user_type == 'patient'
+        user.is_doctor = user_type == 'doctor'
+        user.save()
 
+        if user_type == 'patient':
+            patient_form = PatientForm(self.request.POST)
+            if patient_form.is_valid():
+                patient = patient_form.save(commit=False)
+                patient.user = user
+                patient.save()
+        elif user_type == 'doctor':
+            doctor_form = DoctorForm(self.request.POST)
+            if doctor_form.is_valid():
+                doctor = doctor_form.save(commit=False)
+                doctor.user = user
+                doctor.save()
 
-class UserLoginView(LoginView):
-    # TODO: add Google login
-    template_name = 'users/login.html'
+        login(self.request, user)
+        return redirect(self.get_success_url())
 
 
 def otp(request):
     if request.method == 'POST':
-        otp = request.POST['otp']
+        otp_req = request.POST['otp']
         username = request.session['username']
 
         otp_secret_key = request.session['otp_secret_key']
@@ -47,7 +75,7 @@ def otp(request):
 
             if valid_date > datetime.now():
                 totp = pyotp.TOTP(otp_secret_key, interval=60)
-                if totp.verify(otp):
+                if totp.verify(otp_req):
                     user = get_object_or_404(User, username=username)
                     login(request, user)
 

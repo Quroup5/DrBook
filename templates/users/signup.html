@@ -1,16 +1,47 @@
+<!-- myapp/templates/myapp/register.html -->
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Hello</title>
+    <title>Sign Up</title>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const userTypeFields = document.querySelectorAll('input[name="user_type"]');
+            const patientFields = document.getElementById('patient-fields');
+            const doctorFields = document.getElementById('doctor-fields');
+
+            userTypeFields.forEach(field => {
+                field.addEventListener('change', function(event) {
+                    const userType = event.target.value;
+                    if (userType === 'patient') {
+                        patientFields.style.display = 'block';
+                        doctorFields.style.display = 'none';
+                    } else if (userType === 'doctor') {
+                        patientFields.style.display = 'none';
+                        doctorFields.style.display = 'block';
+                    }
+                });
+
+                // Trigger change event on load to set correct fields visibility
+                field.dispatchEvent(new Event('change'));
+            });
+        });
+    </script>
 </head>
 <body>
- <h2>Sign Up</h2>
-
-    <form action="" method="post">
+    <h2>Sign Up</h2>
+    <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <input class="btn btn-primary" type="submit" value="Signup">
+
+        <div id="patient-fields" style="display:none;">
+            {{ patient_form.as_p }}
+        </div>
+
+        <div id="doctor-fields" style="display:none;">
+            {{ doctor_form.as_p }}
+        </div>
+
+        <button type="submit">Sign Up</button>
     </form>
 </body>
 </html>
