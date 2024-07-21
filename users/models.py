@@ -48,16 +48,19 @@ class Doctor(models.Model):
     speciality = models.CharField(
         max_length=50,
         choices=SPECIALITY_CHOICES,
-        verbose_name="Speciality"
+        verbose_name="Speciality",
+        blank=True,
     )
     address = models.CharField(
         max_length=255,
         null=False,
-        verbose_name="Address"
+        verbose_name="Address",
+        blank=True,
     )
     price = models.FloatField(
         null=False,
-        verbose_name="Consultation Fee"
+        verbose_name="Consultation Fee",
+        blank=True,
     )
 
     def __str__(self):

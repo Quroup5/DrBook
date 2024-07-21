@@ -1,16 +1,15 @@
-<!-- myapp/templates/myapp/register.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <title>Sign Up</title>
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
+        document.addEventListener("DOMContentLoaded", function () {
             const userTypeFields = document.querySelectorAll('input[name="user_type"]');
             const patientFields = document.getElementById('patient-fields');
             const doctorFields = document.getElementById('doctor-fields');
 
             userTypeFields.forEach(field => {
-                field.addEventListener('change', function(event) {
+                field.addEventListener('change', function (event) {
                     const userType = event.target.value;
                     if (userType === 'patient') {
                         patientFields.style.display = 'block';
@@ -28,20 +27,21 @@
     </script>
 </head>
 <body>
-    <h2>Sign Up</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
+<h2>Sign Up</h2>
+<form method="post" action="">
+    {% csrf_token %}
+    {{ form.as_p }}
 
-        <div id="patient-fields" style="display:none;">
-            {{ patient_form.as_p }}
-        </div>
+    <div id="patient-fields" style="display:none;">
+        {{ patient_form.as_p }}
+    </div>
 
-        <div id="doctor-fields" style="display:none;">
-            {{ doctor_form.as_p }}
-        </div>
+    <div id="doctor-fields" style="display:none;">
+        {{ doctor_form.as_p }}
+    </div>
 
-        <button type="submit">Sign Up</button>
-    </form>
+    <button type="submit">Sign Up</button>
+</form>
+
 </body>
 </html>
