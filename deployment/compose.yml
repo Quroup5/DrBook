@@ -1,0 +1,42 @@
+---
+networks:
+  drbook-net:
+    name: ct-net
+    driver: bridge
+    external: false
+
+volumes:
+  drbook-data:
+    name: be-data
+    driver: local
+    external: false
+
+services:
+  database:
+    image: postgres:latest
+    container_name: drbook-postgres
+    hostname: quera
+    restart: always
+    environment:
+      - PG_HOST=0.0.0.0
+      - PG_PORT=5432
+      - PG_PASSWORD=ahmad
+      - PG_NAME=postgres
+      - PG_USER=ahmad
+    ports:
+      - '5432:5432'
+    volumes:
+      - drbook-data:/var/lib/postgresql/data
+    networks:
+      - drbook-net
+
+  backend:
+    image: drbook/backend:latest
+    container_name: drbook-backend
+    hostname: quera
+    restart: always
+    networks:
+      - drbook-net
+    depends_on:
+      database:
+        condition: service_started
