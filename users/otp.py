@@ -10,3 +10,5 @@ def send_otp(request):
     request.session['otp_valid_date'] = str(valid_date)
 
     print(f'your one time password is {otp}')
+
+    return request

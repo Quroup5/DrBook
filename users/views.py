@@ -63,7 +63,7 @@ class UserLoginView(LoginView):
     authentication_form = UserLoginForm
 
     def get_success_url(self):
-        return reverse('otp')
+        return reverse('profile')
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -152,9 +152,10 @@ def see_doctor_comments(request):
 
 
 def otp(request):
+    request = send_otp(request)
     if request.method == 'POST':
         otp_req = request.POST['otp']
-        username = request.session['username']
+        username = request.user.username
 
         otp_secret_key = request.session['otp_secret_key']
         otp_valid_date = request.session['otp_valid_date']
@@ -163,8 +164,8 @@ def otp(request):
             valid_date = datetime.fromisoformat(otp_valid_date)
 
             if valid_date > datetime.now():
-                totp = pyotp.TOTP(otp_secret_key, interval=60)
-                if totp.verify(otp_req):
+                totp = pyotp.TOTP(otp_secret_key, interval=1000)
+                if totp.verify(otp_req, valid_window=10):
                     user = get_object_or_404(User, username=username)
                     login(request, user)
 
@@ -172,6 +173,8 @@ def otp(request):
                     del request.session['otp_valid_date']
 
                     messages.success(request, f"you are logged in as {username}")
-                    return redirect('home')
+                    return redirect('profile')
+        else:
+            messages.error(request, "OTP Error!")
 
     return render(request, 'otp.html')
