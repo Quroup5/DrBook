@@ -61,7 +61,9 @@ class UserLoginView(LoginView):
     # PageTree: 2.1
     template_name = 'users/login.html'
     authentication_form = UserLoginForm
-    success_url = reverse_lazy('profile')
+
+    def get_success_url(self):
+        return reverse('profile')
 
 
 @login_required(login_url=reverse_lazy('login'))
