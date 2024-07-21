@@ -5,8 +5,10 @@ from .views import SignUpView, display_profile, increase_balance, payment, otp, 
 urlpatterns = [
     path('login/', UserLoginView.as_view(), name='login'),
     path('signup/', SignUpView.as_view(), name="signup"),
-
     path('profile/', display_profile, name='profile'),
+
+
+
     path('increase/balance/', increase_balance, name='increase_balance'),
     path('payment/', payment, name='payment'),
     path('otp/', otp, name='otp'),

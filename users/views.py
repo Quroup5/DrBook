@@ -8,6 +8,7 @@ from datetime import datetime
 
 from django.views.generic import CreateView
 
+import users.models
 from users.forms import SignUpForm, UserLoginForm, PatientForm, DoctorForm
 from django.contrib.auth.views import LoginView
 
@@ -17,16 +18,8 @@ from users.otp import send_otp
 import pyotp
 
 
-class UserLoginView(LoginView):
-    # TODO: add Google login
-    # PageTree: 2.1
-    template_name = 'users/login.html'
-    authentication_form = UserLoginForm
-    redirect_authenticated_user = True
-    success_url = reverse_lazy('profile')
-
-
 class SignUpView(CreateView):
+    object: users.models.User
     # PageTree: 2.2
     form_class = SignUpForm
     template_name = 'users/signup.html'
@@ -39,7 +32,8 @@ class SignUpView(CreateView):
         return context
 
     def form_valid(self, form):
-        user = form.save(commit=False)
+        self.object = form.save(commit=False)  # Set self.object to the user being created
+        user = self.object
         user_type = form.cleaned_data['user_type']
         user.is_patient = user_type == 'patient'
         user.is_doctor = user_type == 'doctor'
@@ -60,6 +54,26 @@ class SignUpView(CreateView):
 
         login(self.request, user)
         return redirect(self.get_success_url())
+
+
+class UserLoginView(LoginView):
+    # TODO: add Google login
+    # PageTree: 2.1
+    template_name = 'users/login.html'
+    authentication_form = UserLoginForm
+    success_url = reverse_lazy('profile')
+
+
+@login_required(login_url=reverse_lazy('login'))
+def display_profile(request):
+    info = Patient.objects.filter(patient=request.user).first()
+
+    context = {
+        'msg': '',
+        'user': request.user,
+        'info': info
+    }
+    return render(request, 'users/profile.html', context)
 
 
 def otp(request):
@@ -86,18 +100,6 @@ def otp(request):
                     return redirect('home')
 
     return render(request, 'otp.html')
-
-
-@login_required
-def display_profile(request):
-    info = Patient.objects.filter(patient=request.user).first()
-
-    context = {
-        'msg': '',
-        'user': request.user,
-        'info': info
-    }
-    return render(request, 'users/profile.html', context)
 
 
 @login_required
