@@ -23,16 +23,55 @@ def display_search_page(request):
 
 
 def search_by_name(request):
-    # TODO add feature of doctor search by name
-    pass
+    doctor_list = None
+
+    if request.method == "GET":
+
+        first_name = request.GET.get("first_name", '')
+        last_name = request.GET.get("last_name", '')
+
+        if len(first_name) == 0 and len(last_name) == 0:
+            doctor_list = User.objects.select_related('doctor').filter(
+                Q(doctor__user__first_name__startswith='')
+                |
+                Q(doctor__user__last_name__istartswith='')).values(
+                'id', 'first_name', 'last_name', 'doctor__speciality', 'doctor__address', 'doctor__price'
+            )
+
+        if len(first_name) == 0 and len(last_name) != 0:
+            doctor_list = User.objects.select_related('doctor').filter(
+                Q(doctor__user__last_name__istartswith=last_name)).values(
+                'id', 'first_name', 'last_name', 'doctor__speciality', 'doctor__address', 'doctor__price'
+            )
+
+        if len(first_name) != 0 and len(last_name) == 0:
+            doctor_list = User.objects.select_related('doctor').filter(
+                Q(doctor__user__first_name__istartswith=first_name)).values(
+                'id', 'first_name', 'last_name', 'doctor__speciality', 'doctor__address', 'doctor__price'
+            )
+
+        if len(first_name) != 0 and len(last_name) != 0:
+            doctor_list = User.objects.select_related('doctor').filter(
+                Q(doctor__user__first_name__startswith=first_name)
+                &
+                Q(doctor__user__last_name__istartswith=last_name)).values(
+                'id', 'first_name', 'last_name', 'doctor__speciality', 'doctor__address', 'doctor__price'
+            )
+
+        context = {
+            'doctor_list': doctor_list
+        }
+        return render(request, template_name='booking/search_result.html', context=context)
+
+    return HttpResponse(content="Bad Request", status=400)
 
 
 def search_by_speciality(request):
     if request.method == "GET":
         spec = request.GET.get("spec")
-        doctor_list = User.objects.select_related('doctorinfo'
-                                                  ).filter(doctorinfo__speciality__exact=spec).values(
-            'id', 'first_name', 'last_name', 'doctorinfo__speciality', 'doctorinfo__address', 'doctorinfo__price'
+        doctor_list = User.objects.select_related('doctor'
+                                                  ).filter(doctor__speciality__exact=spec).values(
+            'id', 'first_name', 'last_name', 'doctor__speciality', 'doctor__address', 'doctor__price'
         )
 
         context = {
@@ -49,7 +88,7 @@ def show_visit_times(request):
         doctor = User.objects.get(id=doctor_id)
         today = datetime.date.today()
         # This query shows all the available visit time of after now
-        time_list = VisitTime.objects.filter(Q(doctor__doctor__exact=doctor) & Q(patient_id=None) & Q(date__gte=today))
+        time_list = VisitTime.objects.filter(Q(doctor__user__exact=doctor) & Q(patient_id=None) & Q(date__gte=today))
         time_list = time_list.filter(Q(date__gte=datetime.datetime.now())).order_by('date', 'time')
 
         context = {
@@ -59,17 +98,6 @@ def show_visit_times(request):
         return render(request, template_name='booking/visit_times.html', context=context)
 
     return HttpResponse(content="Bad Request", status=400)
-
-
-@login_required
-def show_reservations(request):
-    time_list = VisitTime.objects.filter(patient_id=request.user.id)
-    context = {
-        'msg': '',
-        'times': time_list
-    }
-
-    return render(request, template_name="booking/show_reservations.html", context=context)
 
 
 @login_required
@@ -93,7 +121,7 @@ def reserve_visit_times(request):
 
         selected_visit_time = VisitTime.objects.get(id=time_id)
         price = selected_visit_time.doctor.price
-        info_object = Patient.objects.filter(patient=request.user).first()
+        info_object = Patient.objects.filter(user=request.user).first()
 
         balance = float(info_object.balance)
         msg = ''
@@ -101,7 +129,7 @@ def reserve_visit_times(request):
             msg = "Insufficient fund! Please increase your balance. "
 
         else:
-            info_object.balance = str(balance - price)
+            info_object.balance = balance - price
             selected_visit_time.patient = info_object
             selected_visit_time.save()
             info_object.save()
@@ -115,9 +143,20 @@ def reserve_visit_times(request):
 
 
 @login_required
+def show_reservations(request):
+    time_list = VisitTime.objects.filter(patient__user__exact=request.user)
+    context = {
+        'msg': '',
+        'times': time_list
+    }
+
+    return render(request, template_name="booking/show_reservations.html", context=context)
+
+
+@login_required
 def display_past_visit_times(request):
     time_list = VisitTime.objects.filter(
-        Q(patient_id=request.user.id) & Q(date__lt=datetime.datetime.today())).order_by('date', 'time')
+        Q(patient__user__exact=request.user) & Q(date__lt=datetime.datetime.today())).order_by('date', 'time')
     context = {
         'msg': '',
         'times': time_list

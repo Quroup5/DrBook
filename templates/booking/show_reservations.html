@@ -11,8 +11,8 @@
 {% for time in times %}
     <pr>
         ------------------------------------------------<br>
-        Doctor Name:{{ time.doctor.doctor.first_name }} {{ time.doctor.doctor.last_name }}<br>
-        Date: {{ time.date }} - Time: {{ selected_time.time }}<br>
+        Doctor Name: {{ time.doctor.user.first_name }} {{ time.doctor.user.last_name }}<br>
+        Date: {{ time.date }} - Time: {{ time.time }}<br>
         Speciality: {{ time.doctor.speciality }}<br>
         Address: {{ time.doctor.address }}<br>
         ------------------------------------------------<br>

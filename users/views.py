@@ -9,10 +9,10 @@ from datetime import datetime
 from django.views.generic import CreateView
 
 import users.models
-from users.forms import SignUpForm, UserLoginForm, PatientForm, DoctorForm
+from users.forms import SignUpForm, UserLoginForm, PatientForm, DoctorForm, CommentForm
 from django.contrib.auth.views import LoginView
 
-from users.models import Patient, User
+from users.models import Patient, User, VisitTime, Comment
 from users.otp import send_otp
 
 import pyotp
@@ -63,7 +63,7 @@ class UserLoginView(LoginView):
     authentication_form = UserLoginForm
 
     def get_success_url(self):
-        return reverse('profile')
+        return reverse('otp')
 
 
 @login_required(login_url=reverse_lazy('login'))
@@ -78,32 +78,6 @@ def display_profile(request):
     return render(request, 'users/profile.html', context)
 
 
-def otp(request):
-    if request.method == 'POST':
-        otp_req = request.POST['otp']
-        username = request.session['username']
-
-        otp_secret_key = request.session['otp_secret_key']
-        otp_valid_date = request.session['otp_valid_date']
-
-        if otp_secret_key and otp_valid_date is not None:
-            valid_date = datetime.fromisoformat(otp_valid_date)
-
-            if valid_date > datetime.now():
-                totp = pyotp.TOTP(otp_secret_key, interval=60)
-                if totp.verify(otp_req):
-                    user = get_object_or_404(User, username=username)
-                    login(request, user)
-
-                    del request.session['otp_secret_key']
-                    del request.session['otp_valid_date']
-
-                    messages.success(request, f"you are logged in as {username}")
-                    return redirect('home')
-
-    return render(request, 'otp.html')
-
-
 @login_required
 def increase_balance(request):
     return render(request, template_name="users/increase_balance.html")
@@ -114,9 +88,9 @@ def payment(request):
     if request.method == "POST":
         amount = float(request.POST.get("amount"))
         current_user = request.user
-        info_object = Patient.objects.filter(patient=current_user).first()
+        info_object = Patient.objects.filter(user=current_user).first()
         initial = float(info_object.balance)
-        info_object.balance = str(initial + amount)
+        info_object.balance = initial + amount
         info_object.save()
         msg = f'Thanks. You paid {amount}, and your balance is now: {initial + amount}.'
         return render(request, template_name='booking/after_operation_message.html',
@@ -169,10 +143,35 @@ def save_comment(request):
 def see_doctor_comments(request):
     doctor_id = request.GET.get("id")
     doctor = User.objects.get(id=doctor_id)
-    comments = Comment.objects.filter(visit_time__doctor__doctor_id=doctor_id)
+    comments = Comment.objects.filter(visit_time__doctor__user_id=doctor_id)
     context = {
         'doctor': doctor,
         'comments': comments
     }
-    print(comments.values())
     return render(request, template_name='booking/see_comments.html', context=context)
+
+
+def otp(request):
+    if request.method == 'POST':
+        otp_req = request.POST['otp']
+        username = request.session['username']
+
+        otp_secret_key = request.session['otp_secret_key']
+        otp_valid_date = request.session['otp_valid_date']
+
+        if otp_secret_key and otp_valid_date is not None:
+            valid_date = datetime.fromisoformat(otp_valid_date)
+
+            if valid_date > datetime.now():
+                totp = pyotp.TOTP(otp_secret_key, interval=60)
+                if totp.verify(otp_req):
+                    user = get_object_or_404(User, username=username)
+                    login(request, user)
+
+                    del request.session['otp_secret_key']
+                    del request.session['otp_valid_date']
+
+                    messages.success(request, f"you are logged in as {username}")
+                    return redirect('home')
+
+    return render(request, 'otp.html')

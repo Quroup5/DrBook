@@ -23,8 +23,8 @@ class User(AbstractUser):
 
 class Patient(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    address = models.CharField(max_length=255, verbose_name="Address")
-    balance = models.PositiveIntegerField(default=0, verbose_name="Balance")
+    address = models.CharField(max_length=255, verbose_name="Address", blank=True)
+    balance = models.PositiveIntegerField(default=0, verbose_name="Balance", blank=True)
 
     def __str__(self):
         return self.user.username
@@ -69,7 +69,7 @@ class Doctor(models.Model):
 
 class VisitTime(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE, verbose_name="Doctor")
-    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, verbose_name="Patient")
+    patient = models.ForeignKey(Patient, on_delete=models.CASCADE, verbose_name="Patient", null=True, blank=True)
     date = models.DateField(null=False, verbose_name="Date")
 
     @staticmethod
