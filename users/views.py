@@ -68,7 +68,7 @@ class UserLoginView(LoginView):
 
 @login_required(login_url=reverse_lazy('login'))
 def display_profile(request):
-    info = Patient.objects.filter(patient=request.user).first()
+    info = Patient.objects.filter(user=request.user).first()
 
     context = {
         'msg': '',
