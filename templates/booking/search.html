@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+</head>
+<body>
+<div style="border: dashed; text-align: center">
+    <p>Search Doctor by Name</p>
+    <form method="get" action="/booking/search/name/">
+        <p><label for="f1">First Name</label>
+            <input type="text" id="f1" name="first_name"></p>
+        <p><label for="f2">Last Name</label>
+            <input type="text" id="f2" name="last_name"></p>
+        <p><input type="submit" value="Search"></p>
+    </form>
+</div>
+<br>
+
+<div style="border: dashed; text-align: center">
+    <p>Search Doctor by Speciality
+    <p>
+    <form method="get" action="/booking/search/speciality/">
+        <p><label for="f1">Speciality</label>
+
+            <select name="spec">
+                {% for ii in specs %}
+                    <option value={{ ii }}>{{ ii }}</option>
+                {% endfor %}
+            </select>
+        <p><input type="submit" value="Search"></p>
+    </form>
+</div>
+
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>

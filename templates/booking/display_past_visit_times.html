@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Display Past Visit Times</title>
+</head>
+<body>
+
+<p>
+    Your past visit times are:
+</p>
+{% for time in times %}
+    <p>
+        ------------------------------------------------<br>
+        Doctor Name: {{ time.doctor.user.first_name }} {{ time.doctor.user.last_name }}<br>
+        Date: {{ time.date }} - Time: {{ time.time }}<br>
+        Speciality: {{ time.doctor.speciality }}<br>
+        Address: {{ time.doctor.address }}<br>
+        <a href="{% url 'add_comment' %}?time_id={{ time.id }}"> Add Comment To This Visit</a><br>
+        ------------------------------------------------<br>
+    </p>
+{% endfor %}
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>

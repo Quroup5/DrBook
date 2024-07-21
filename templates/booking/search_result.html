@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search Result</title>
+</head>
+<body>
+Click on the name of the doctor to see the visit times:<br>
+{% for doctor in doctor_list %}
+    <p><a href="{% url 'visit_time' %}?id={{ doctor.id }}">
+        Name:{{ doctor.first_name }} {{ doctor.last_name }}</a>
+        - Speciality:{{ doctor.doctor__speciality }}
+        - Visiting Price:{{ doctor.doctor__price }}
+        - Address:{{ doctor.doctor__address }}
+         <a href="{% url 'see_doctor_comments' %}?id={{ doctor.id }}"> See comments</a>
+    </p>
+{% endfor %}
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>

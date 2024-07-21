@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from .models import User, Patient
+
+admin.site.register(User)
+
+
+@admin.register(Patient)
+class PatientInfoAdmin(admin.ModelAdmin):
+    list_display = (['__str__'])

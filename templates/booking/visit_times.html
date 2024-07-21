@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Visit_times</title>
+</head>
+<body>
+Click on the time to select the visit times:<br>
+<p style="color: blue">
+    Doctor Name: {{ doctor.first_name }} {{ doctor.last_name }} -
+    Speciality: {{ doctor.doctor.speciality }} </p>
+{% for time in time_list %}
+    <p><a href="{% url 'check_visit_time' %}?id={{ time.id }}" methods>
+        - Date:{{ time.date }}
+        - Time:{{ time.time }} </a>
+        - Price:{{ doctor.doctor.price }} </p>
+{% endfor %}
+</body>
+<footer>
+    <p style="text-align: center">
+        <a href="/users/login/">Log out</a> &nbsp;
+        <a href="/users/profile/">Back to profile</a></p>
+    </p>
+</footer>
+</html>

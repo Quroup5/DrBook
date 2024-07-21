@@ -1,3 +1,5 @@
+{# TODO: Improve this template #}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,6 +7,13 @@
     <title>home</title>
 </head>
 <body>
-This is HOme page
+<h1 style="text-align: center">Welcome to Dr.Book</h1>
+<nav>
+    <div style="text-align: center">
+        <a href="{% url 'login' %}">Log in </a> <br>
+        <a href="{% url 'signup' %}">Sign up </a> <br>
+    </div>
+</nav>
+
 </body>
 </html>
