@@ -8,10 +8,10 @@ WORKDIR /home
 
 RUN git clone https://github.com/Quroup5/DrBook.git
 
-WORKDIR /home/DrBook
+WORKDIR /home/DrBook/
 
 RUN pip install -r ./requirements.txt
 
 EXPOSE 8000
 
-CMD [ "python", "manage.py", "runserver", "0.0.0.0:8000", "--settings=core.production_settings.py" ]
+CMD [ "python3", "manage.py", "runserver", "0.0.0.0:8000", "--settings=core.production_settings.py" ]
